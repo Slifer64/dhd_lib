@@ -1,0 +1,38 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/slifer/slifer/dhd_lib/src/dhd_lib/include/dhd_lib/dhd.h
+dhd_sdk/dhdc.h
+-
+
+/home/slifer/slifer/dhd_lib/src/dhd_lib/include/dhd_lib/sigma7.h
+iostream
+-
+iomanip
+-
+dhd_sdk/dhdc.h
+-
+
+/home/slifer/slifer/dhd_lib/src/dhd_lib/include/dhd_sdk/dhdc.h
+stddef.h
+-
+stdint.h
+-
+
+/home/slifer/slifer/dhd_lib/src/dhd_lib/src/dhd.cpp
+dhd_lib/dhd.h
+-
+iostream
+-
+cstring
+-
+
+/home/slifer/slifer/dhd_lib/src/dhd_lib/src/sigma7.cpp
+dhd_lib/sigma7.h
+-
+

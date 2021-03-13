@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package>
+  <name>dhd_test</name>
+  <version>0.0.0</version>
+  <description>DHD test</description>
+
+  <maintainer email="antosidi646@gmail.com">Antonis Sidiropoulos</maintainer>
+
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
+  <run_depend>roscpp</run_depend>
+
+  <build_depend>roslib</build_depend>
+  <run_depend>roslib</run_depend>
+
+  <build_depend>dhd_lib</build_depend>
+  <run_depend>dhd_lib</run_depend>
+
+  <export></export>
+</package>
