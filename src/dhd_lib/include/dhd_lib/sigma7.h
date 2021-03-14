@@ -11,6 +11,14 @@
 namespace dhd_
 {
 
+enum Mode
+{
+  RESET,
+  IDLE,
+  FORCE,
+  BRAKE
+};
+
 class Sigma7
 {
 public:
@@ -19,7 +27,16 @@ public:
 
   ~Sigma7();
 
-  void setForce(double fx, double fy, double fz);
+  bool isOk() const;
+
+  bool isLeftHanded() const;
+
+  void calibrate();
+
+
+
+  void setForce(const arma::vec &force);
+  void setWrench(const arma::vec &wrench);
 
   arma::mat getWristRotm() const;
   arma::vec getEePos() const;
@@ -39,7 +56,7 @@ public:
   double getGripperAngVel() const;
   double getGripperLinVel() const;
 
-  void gravityComp();
+  void gravityComp(bool set);
 
   bool isButtonPressed() const;
 
@@ -49,7 +66,7 @@ private:
 
   int id_;
 
-  void throwError(const std::string fun_name, int err_code) const;
+  void throwError(const std::string fun_name) const;
 
 }; // Sigma7
 

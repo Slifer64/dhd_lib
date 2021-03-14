@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
     while (true)
     {
       // apply a null force to put the device in gravity compensation
-      for (int i=0; i<dev_count; i++) sig_dev[i]->setForce(0,0,0);
+      for (int i=0; i<dev_count; i++) sig_dev[i]->setForce({0,0,0});
 
       for (int i=0; i<dev_count; i++)
       {

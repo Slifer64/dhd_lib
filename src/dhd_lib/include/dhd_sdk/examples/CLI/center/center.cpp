@@ -34,8 +34,7 @@ using namespace Eigen;
 
 
 int
-main (int  argc,
-      char **argv)
+main (int  argc, char **argv)
 {
   double p[DHD_MAX_DOF];
   double r[3][3];

@@ -21,13 +21,12 @@
 
 
 int
-main (int  argc,
-      char **argv)
+main (int  argc, char **argv)
 {
   double px, py, pz;
   double fx, fy, fz;
   double freq   = 0.0;
-  double t1,t0  = dhdGetTime ();
+  double t1,t0  = dhdGetTime();
   int    done   = 0;
 
   // message
