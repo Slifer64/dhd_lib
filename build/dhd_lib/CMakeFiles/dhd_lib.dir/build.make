@@ -57,9 +57,33 @@ include dhd_lib/CMakeFiles/dhd_lib.dir/progress.make
 # Include the compile flags for this target's objects.
 include dhd_lib/CMakeFiles/dhd_lib.dir/flags.make
 
+dhd_lib/CMakeFiles/dhd_lib.dir/src/utils.cpp.o: dhd_lib/CMakeFiles/dhd_lib.dir/flags.make
+dhd_lib/CMakeFiles/dhd_lib.dir/src/utils.cpp.o: /home/slifer/slifer/dhd_lib/src/dhd_lib/src/utils.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/slifer/slifer/dhd_lib/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object dhd_lib/CMakeFiles/dhd_lib.dir/src/utils.cpp.o"
+	cd /home/slifer/slifer/dhd_lib/build/dhd_lib && /usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/dhd_lib.dir/src/utils.cpp.o -c /home/slifer/slifer/dhd_lib/src/dhd_lib/src/utils.cpp
+
+dhd_lib/CMakeFiles/dhd_lib.dir/src/utils.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/dhd_lib.dir/src/utils.cpp.i"
+	cd /home/slifer/slifer/dhd_lib/build/dhd_lib && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/slifer/slifer/dhd_lib/src/dhd_lib/src/utils.cpp > CMakeFiles/dhd_lib.dir/src/utils.cpp.i
+
+dhd_lib/CMakeFiles/dhd_lib.dir/src/utils.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/dhd_lib.dir/src/utils.cpp.s"
+	cd /home/slifer/slifer/dhd_lib/build/dhd_lib && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/slifer/slifer/dhd_lib/src/dhd_lib/src/utils.cpp -o CMakeFiles/dhd_lib.dir/src/utils.cpp.s
+
+dhd_lib/CMakeFiles/dhd_lib.dir/src/utils.cpp.o.requires:
+
+.PHONY : dhd_lib/CMakeFiles/dhd_lib.dir/src/utils.cpp.o.requires
+
+dhd_lib/CMakeFiles/dhd_lib.dir/src/utils.cpp.o.provides: dhd_lib/CMakeFiles/dhd_lib.dir/src/utils.cpp.o.requires
+	$(MAKE) -f dhd_lib/CMakeFiles/dhd_lib.dir/build.make dhd_lib/CMakeFiles/dhd_lib.dir/src/utils.cpp.o.provides.build
+.PHONY : dhd_lib/CMakeFiles/dhd_lib.dir/src/utils.cpp.o.provides
+
+dhd_lib/CMakeFiles/dhd_lib.dir/src/utils.cpp.o.provides.build: dhd_lib/CMakeFiles/dhd_lib.dir/src/utils.cpp.o
+
+
 dhd_lib/CMakeFiles/dhd_lib.dir/src/dhd.cpp.o: dhd_lib/CMakeFiles/dhd_lib.dir/flags.make
 dhd_lib/CMakeFiles/dhd_lib.dir/src/dhd.cpp.o: /home/slifer/slifer/dhd_lib/src/dhd_lib/src/dhd.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/slifer/slifer/dhd_lib/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object dhd_lib/CMakeFiles/dhd_lib.dir/src/dhd.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/slifer/slifer/dhd_lib/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object dhd_lib/CMakeFiles/dhd_lib.dir/src/dhd.cpp.o"
 	cd /home/slifer/slifer/dhd_lib/build/dhd_lib && /usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/dhd_lib.dir/src/dhd.cpp.o -c /home/slifer/slifer/dhd_lib/src/dhd_lib/src/dhd.cpp
 
 dhd_lib/CMakeFiles/dhd_lib.dir/src/dhd.cpp.i: cmake_force
@@ -83,7 +107,7 @@ dhd_lib/CMakeFiles/dhd_lib.dir/src/dhd.cpp.o.provides.build: dhd_lib/CMakeFiles/
 
 dhd_lib/CMakeFiles/dhd_lib.dir/src/sigma7.cpp.o: dhd_lib/CMakeFiles/dhd_lib.dir/flags.make
 dhd_lib/CMakeFiles/dhd_lib.dir/src/sigma7.cpp.o: /home/slifer/slifer/dhd_lib/src/dhd_lib/src/sigma7.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/slifer/slifer/dhd_lib/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object dhd_lib/CMakeFiles/dhd_lib.dir/src/sigma7.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/slifer/slifer/dhd_lib/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object dhd_lib/CMakeFiles/dhd_lib.dir/src/sigma7.cpp.o"
 	cd /home/slifer/slifer/dhd_lib/build/dhd_lib && /usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/dhd_lib.dir/src/sigma7.cpp.o -c /home/slifer/slifer/dhd_lib/src/dhd_lib/src/sigma7.cpp
 
 dhd_lib/CMakeFiles/dhd_lib.dir/src/sigma7.cpp.i: cmake_force
@@ -107,18 +131,20 @@ dhd_lib/CMakeFiles/dhd_lib.dir/src/sigma7.cpp.o.provides.build: dhd_lib/CMakeFil
 
 # Object files for target dhd_lib
 dhd_lib_OBJECTS = \
+"CMakeFiles/dhd_lib.dir/src/utils.cpp.o" \
 "CMakeFiles/dhd_lib.dir/src/dhd.cpp.o" \
 "CMakeFiles/dhd_lib.dir/src/sigma7.cpp.o"
 
 # External object files for target dhd_lib
 dhd_lib_EXTERNAL_OBJECTS =
 
+/home/slifer/slifer/dhd_lib/devel/lib/libdhd_lib.so: dhd_lib/CMakeFiles/dhd_lib.dir/src/utils.cpp.o
 /home/slifer/slifer/dhd_lib/devel/lib/libdhd_lib.so: dhd_lib/CMakeFiles/dhd_lib.dir/src/dhd.cpp.o
 /home/slifer/slifer/dhd_lib/devel/lib/libdhd_lib.so: dhd_lib/CMakeFiles/dhd_lib.dir/src/sigma7.cpp.o
 /home/slifer/slifer/dhd_lib/devel/lib/libdhd_lib.so: dhd_lib/CMakeFiles/dhd_lib.dir/build.make
 /home/slifer/slifer/dhd_lib/devel/lib/libdhd_lib.so: /home/slifer/slifer/dhd_lib/src/dhd_lib/include/dhd_sdk/lib/libdhd.a
 /home/slifer/slifer/dhd_lib/devel/lib/libdhd_lib.so: dhd_lib/CMakeFiles/dhd_lib.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/slifer/slifer/dhd_lib/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX shared library /home/slifer/slifer/dhd_lib/devel/lib/libdhd_lib.so"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/slifer/slifer/dhd_lib/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX shared library /home/slifer/slifer/dhd_lib/devel/lib/libdhd_lib.so"
 	cd /home/slifer/slifer/dhd_lib/build/dhd_lib && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/dhd_lib.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -126,6 +152,7 @@ dhd_lib/CMakeFiles/dhd_lib.dir/build: /home/slifer/slifer/dhd_lib/devel/lib/libd
 
 .PHONY : dhd_lib/CMakeFiles/dhd_lib.dir/build
 
+dhd_lib/CMakeFiles/dhd_lib.dir/requires: dhd_lib/CMakeFiles/dhd_lib.dir/src/utils.cpp.o.requires
 dhd_lib/CMakeFiles/dhd_lib.dir/requires: dhd_lib/CMakeFiles/dhd_lib.dir/src/dhd.cpp.o.requires
 dhd_lib/CMakeFiles/dhd_lib.dir/requires: dhd_lib/CMakeFiles/dhd_lib.dir/src/sigma7.cpp.o.requires
 

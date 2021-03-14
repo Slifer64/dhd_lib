@@ -249,6 +249,33 @@ src/sigma7.cpp.s:
 	cd /home/slifer/slifer/dhd_lib/build && $(MAKE) -f dhd_lib/CMakeFiles/dhd_lib.dir/build.make dhd_lib/CMakeFiles/dhd_lib.dir/src/sigma7.cpp.s
 .PHONY : src/sigma7.cpp.s
 
+src/utils.o: src/utils.cpp.o
+
+.PHONY : src/utils.o
+
+# target to build an object file
+src/utils.cpp.o:
+	cd /home/slifer/slifer/dhd_lib/build && $(MAKE) -f dhd_lib/CMakeFiles/dhd_lib.dir/build.make dhd_lib/CMakeFiles/dhd_lib.dir/src/utils.cpp.o
+.PHONY : src/utils.cpp.o
+
+src/utils.i: src/utils.cpp.i
+
+.PHONY : src/utils.i
+
+# target to preprocess a source file
+src/utils.cpp.i:
+	cd /home/slifer/slifer/dhd_lib/build && $(MAKE) -f dhd_lib/CMakeFiles/dhd_lib.dir/build.make dhd_lib/CMakeFiles/dhd_lib.dir/src/utils.cpp.i
+.PHONY : src/utils.cpp.i
+
+src/utils.s: src/utils.cpp.s
+
+.PHONY : src/utils.s
+
+# target to generate assembly for a file
+src/utils.cpp.s:
+	cd /home/slifer/slifer/dhd_lib/build && $(MAKE) -f dhd_lib/CMakeFiles/dhd_lib.dir/build.make dhd_lib/CMakeFiles/dhd_lib.dir/src/utils.cpp.s
+.PHONY : src/utils.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -270,6 +297,9 @@ help:
 	@echo "... src/sigma7.o"
 	@echo "... src/sigma7.i"
 	@echo "... src/sigma7.s"
+	@echo "... src/utils.o"
+	@echo "... src/utils.i"
+	@echo "... src/utils.s"
 .PHONY : help
 
 

@@ -11,7 +11,7 @@ find_package(catkin REQUIRED)
 find_package(DHDLibrary REQUIRED)
 
 catkin_package(
-        INCLUDE_DIRS include ${DHD_INCLUDE_DIR}
+  INCLUDE_DIRS include ${DHD_INCLUDE_DIR}
 )
 
 include_directories(
@@ -24,6 +24,7 @@ include_directories(
 #link_directories(include/dhd_sdk/lib/)
 
 add_library(${PROJECT_NAME}
+  src/utils.cpp
   src/dhd.cpp
   src/sigma7.cpp
 )
