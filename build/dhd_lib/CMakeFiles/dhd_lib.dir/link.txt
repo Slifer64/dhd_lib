@@ -1,1 +1,0 @@
-/usr/bin/c++  -fPIC  -std=c++11 -O3 -DNDEBUG  -shared -Wl,-soname,libdhd_lib.so -o /home/slifer/slifer/dhd_lib/devel/lib/libdhd_lib.so CMakeFiles/dhd_lib.dir/src/utils.cpp.o CMakeFiles/dhd_lib.dir/src/dhd.cpp.o CMakeFiles/dhd_lib.dir/src/sigma7.cpp.o /home/slifer/slifer/dhd_lib/src/dhd_lib/include/dhd_sdk/lib/libdhd.a -lpthread -lusb-1.0 -lrt -larmadillo 
