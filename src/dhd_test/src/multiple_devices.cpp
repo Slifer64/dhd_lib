@@ -27,40 +27,44 @@ int getDevCount()
 
 int main(int argc, char* argv[])
 {
-    // get device count
-    int dev_count = dhd_::getDeviceCount();
+  dhd_::Sigma7 s1(0);
 
-    if (dev_count < 0)
+  return 0;
+
+  // get device count
+  int dev_count = dhd_::getDeviceCount();
+
+  if (dev_count < 0)
+  {
+      std::cout << "error: " << dhdErrorGetLastStr() << std::endl;
+      return -1;
+  }
+  else if (dev_count < 1)
+  {
+      std::cout << "error: no device detected" << std::endl;
+  }
+  else if (dev_count < 2)
+  {
+      std::cout << "error: singled device detected" << std::endl;
+  }
+
+  // create and open the devices
+  std::vector<std::shared_ptr<dhd_::Sigma7>> sig_dev;
+  for (int i=0; i<dev_count; i++) sig_dev[i].reset(new dhd_::Sigma7(i));
+
+  // haptic loop
+  while (true)
+  {
+    // apply a null force to put the device in gravity compensation
+    for (int i=0; i<dev_count; i++) sig_dev[i]->setForce({0,0,0});
+
+    for (int i=0; i<dev_count; i++)
     {
-        std::cout << "error: " << dhdErrorGetLastStr() << std::endl;
-        return -1;
+      if (sig_dev[i]->isButtonPressed()) break;
     }
-    else if (dev_count < 1)
-    {
-        std::cout << "error: no device detected" << std::endl;
-    }
-    else if (dev_count < 2)
-    {
-        std::cout << "error: singled device detected" << std::endl;
-    }
+  }
 
-    // create and open the devices
-    std::vector<std::shared_ptr<dhd_::Sigma7>> sig_dev;
-    for (int i=0; i<dev_count; i++) sig_dev[i].reset(new dhd_::Sigma7(i));
+  // the connection to the devices closes automatically by the class destructor
 
-    // haptic loop
-    while (true)
-    {
-      // apply a null force to put the device in gravity compensation
-      for (int i=0; i<dev_count; i++) sig_dev[i]->setForce({0,0,0});
-
-      for (int i=0; i<dev_count; i++)
-      {
-        if (sig_dev[i]->isButtonPressed()) break;
-      }
-    }
-
-    // the connection to the devices closes automatically by the class destructor
-
-    return 0;
+  return 0;
 }

@@ -7,6 +7,7 @@
 #include <armadillo>
 
 #include <dhd_sdk/dhdc.h>
+#include <dhd_sdk/drdc.h>
 
 namespace dhd_
 {

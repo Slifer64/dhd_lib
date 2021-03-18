@@ -9,6 +9,17 @@ Sigma7::Sigma7(int i)
   // open the first available device
   this->id_ = dhdOpenID(i);
   if (id_ < 0) throwError("Sigma7");
+
+  // if (!drdIsSupported())
+  // {
+  //   //dhdSleep(1.0);
+  //   drdClose();
+  //   throw std::runtime_error("[Sigma7::Sigma7]: unsupported device...\n");
+  // }
+  std::cout << "=====================================\n";
+  std::cout << "Force Dimension - Sigma7 , SDK-" << dhdGetSDKVersionStr() << "\n";
+  std::cout << dhdGetSystemName() << " haptic device detected.\n";
+  std::cout << "=====================================\n";
 }
 
 Sigma7::~Sigma7()
