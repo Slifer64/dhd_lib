@@ -35,6 +35,11 @@ void MainCtrl::setGripCtrl(bool set)
   sigma7->setGripCtrl(set);
 }
 
+void MainCtrl::gotoNullPose()
+{
+  sigma7->moveToPose({0,0,0,0,0,0,0});
+}
+
 arma::vec MainCtrl::getWrench() const
 {
   return sigma7->getWrench();

@@ -47,7 +47,7 @@ MainWindow::MainWindow(MainCtrl *main_ctrl, QWidget *parent) : QMainWindow(paren
   QObject::connect( view_pose_act, &QAction::triggered, this, [view_pose_dialog](){ view_pose_dialog->launch();} );
 
   // =========================================================
-  // ===========  DOFs control checkboxes  ===================
+  // ===========  DOFs control layout  ===================
   // =========================================================
   pos_ctrl_chbx = new QCheckBox("Position control");
   pos_ctrl_chbx->setFont(font1);
@@ -69,12 +69,23 @@ MainWindow::MainWindow(MainCtrl *main_ctrl, QWidget *parent) : QMainWindow(paren
   dofs_ctrl_layout->addWidget(orient_ctrl_chbx);
   dofs_ctrl_layout->addWidget(grip_ctrl_chbx);
 
+  // ==============================================
+  // ===========  Utils layout  ===================
+  // ==============================================
+  goto_null_pose_btn = new QPushButton("Goto null pose");
+  goto_null_pose_btn->setFont(font1);
+  QObject::connect( goto_null_pose_btn, &QPushButton::pressed, this, [this](){ this->main_ctrl->gotoNullPose());} );
+
+  QVBoxLayout *utils_layout = new QVBoxLayout();
+  utils_layout->addWidget(goto_null_pose_btn);
+
   // =============================================
   // ===========  Main Layout  ===================
   // =============================================
 
   QHBoxLayout *main_layout = new QHBoxLayout(central_widget);
   main_layout->addLayout(dofs_ctrl_layout);
+  main_layout->addLayout(utils_layout);
 
   createMenu();
 }

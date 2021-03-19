@@ -44,6 +44,17 @@ public:
   void setOrientCtrl(bool set);
   void setGripCtrl(bool set);
 
+  void moveToPose(const arma::vec &pose, bool is_blocking=true)
+  {
+   	double p[DHD_MAX_DOF];
+    for (int i=0; i<pose.size();i++) 
+    if (drdMoveTo(id_) < 0)
+      throwError(__func__, "Failed to move to requested pose: ");
+  }
+  //void moveToPos(const arma::vec &pos, bool is_blocking=true);
+  //void moveToRot(const arma::vec &quat, bool is_blocking=true);
+  //void moveToGrip(const arma::vec &pos, bool is_blocking=true);
+
   arma::vec getPosition() const;
   arma::vec getRotm() const;
   arma::vec getQuat() const;

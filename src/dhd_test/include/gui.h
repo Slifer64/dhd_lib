@@ -58,6 +58,8 @@ public:
   gui_::ViewPoseDialog *view_pose_dialog;
   QAction *view_pose_act;
 
+  QPushButton *goto_null_pose_btn;
+
   void createMenu();
 
   QWidget *central_widget;

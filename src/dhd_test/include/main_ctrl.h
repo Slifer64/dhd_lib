@@ -29,6 +29,8 @@ public:
   void setOrientCtrl(bool set);
   void setGripCtrl(bool set);
 
+  void gotoNullPose();
+
 private:
 
   void launchGui();
