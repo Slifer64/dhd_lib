@@ -6,16 +6,26 @@ namespace dhd_
 
 Sigma7::Sigma7(int i)
 {
-  // open the first available device
-  this->id_ = dhdOpenID(i);
-  if (id_ < 0) throwError("Sigma7");
+  // open the device
+  if (i < 0) id_ = drdOpen();
+  else id_ = drdOpenID(i);
 
-  // if (!drdIsSupported())
-  // {
-  //   //dhdSleep(1.0);
-  //   drdClose();
-  //   throw std::runtime_error("[Sigma7::Sigma7]: unsupported device...\n");
-  // }
+  if (id_ < 0) throwError(__func__, "Cannot open the device: ");
+
+  // print out device identifier
+  if (!drdIsSupported(id_)) throwError(__func__, "Unsupported device: ");
+
+  // perform auto-initialization
+  if (!drdIsInitialized(id_) && drdAutoInit(id_) < 0) throwError(__func__, "Auto-initialization failed: ");
+
+
+  if (drdStart(id_) < 0) throwError(__func__, "Regulation thread failed to start: ");
+
+
+  drdSetForceAndTorqueAndGripperForce (0.0, 0.0, 0.0,  // force
+                                       0.0, 0.0, 0.0,  // torque
+                                       0.0);           // gripper force
+
   std::cout << "=====================================\n";
   std::cout << "Force Dimension - Sigma7 , SDK-" << dhdGetSDKVersionStr() << "\n";
   std::cout << dhdGetSystemName() << " haptic device detected.\n";
@@ -24,14 +34,14 @@ Sigma7::Sigma7(int i)
 
 Sigma7::~Sigma7()
 {
-  if (dhdClose(id_) < 0) throwError("~Sigma7");
+  if (drdClose(id_) < 0) throwError(__func__,"Error on closing the DRD: ");
 }
 
 
 bool Sigma7::isOk() const
 {
   int status[DHD_MAX_STATUS];
-  if (dhdGetStatus(status, id_) < 0) throwError("isOk");
+  if (dhdGetStatus(status, id_) < 0) throwError(__func__, "Failed to get device status: ");
 
   return !status[DHD_STATUS_ERROR];
 }
@@ -41,17 +51,154 @@ bool Sigma7::isLeftHanded() const
   return dhdIsLeftHanded(id_);
 }
 
+double Sigma7::getCtrlCycle() const
+{
+  double ctrl_freq = drdGetCtrlFreq(id_);
+  if (ctrl_freq < 0) throwError(__func__,"Failed to get the ctrl frequency: ");
+
+  return 1.0/ctrl_freq;
+}
 
 void Sigma7::calibrate()
 {
-  if (dhdReset(id_) < 0) throwError("calibrate");
+  if (!drdIsInitialized(id_) && drdAutoInit(id_) < 0) throwError(__func__, "Auto-calibration failed: ");
+}
+
+void Sigma7::setPosCtrl(bool set)
+{
+  if (drdRegulatePos(set, id_) < 0) throwError(__func__, "Failed to set position control: ");
+}
+
+void Sigma7::setOrientCtrl(bool set)
+{
+  if (drdRegulateRot(set, id_) < 0) throwError(__func__, "Failed to set orientation control: ");
+}
+
+void Sigma7::setGripCtrl(bool set)
+{
+  if (drdRegulateGrip(set, id_) < 0) throwError(__func__, "Failed to set gripper control: ");
+}
+
+arma::vec Sigma7::getTwist() const
+{
+  double vx, vy, vz, wx, wy, wz, vg;
+  if (drdGetVelocity(&vx, &vy, &vz, &wx, &wy, &wz, &vg, id_) < 0)
+    throwError(__func__, "Failed to get end-effector twist: ");
+
+  return {vx, vy, vz, wx, wy, wz};
+}
+
+double Sigma7::getGripperVel() const
+{
+  double vx, vy, vz, wx, wy, wz, vg;
+  if (drdGetVelocity(&vx, &vy, &vz, &wx, &wy, &wz, &vg, id_) < 0)
+    throwError(__func__, "Failed to get gripper velocity: ");
+
+  return vg;
+}
+
+arma::vec Sigma7::getWrench() const
+{
+  double fx, fy, fz, tx, ty, tz;
+  if (dhdGetForceAndTorque(&fx, &fy, &fz, &tx, &ty, &tz, id_) < 0)
+    throwError(__func__, "Failed to get end-effector wrench: ");
+
+  return arma::vec({fx, fy, fz, tz, ty, tz});
+}
+
+double Sigma7::getGripperForce() const
+{
+  double fx, fy, fz, tx, ty, tz, f_grip;
+  if (dhdGetForceAndTorqueAndGripperForce(&fx, &fy, &fz, &tx, &ty, &tz, &f_grip, id_) < 0)
+    throwError(__func__, "Failed to get gripper force: ");
+
+  return f_grip;
+}
+
+arma::vec Sigma7::getPosition() const
+{
+  double px, py, pz;
+  double oa, ob, og;
+  double pg;
+  double matrix[3][3];
+
+  if (drdGetPositionAndOrientation(&px, &py, &pz, &oa, &ob, &og, &pg, matrix, id_) < 0)
+    throwError(__func__, "Failed to get position and orientation: ");
+
+  return {px, py, pz};
+}
+
+arma::vec Sigma7::getRotm() const
+{
+  double px, py, pz;
+  double oa, ob, og;
+  double pg;
+  double matrix[3][3];
+
+  if (drdGetPositionAndOrientation(&px, &py, &pz, &oa, &ob, &og, &pg, matrix, id_) < 0)
+    throwError(__func__, "Failed to get position and orientation: ");
+
+    arma::mat R(3,3);
+    for (int i=0; i<3; i++)
+    {
+      for (int j=0; j<3; j++) R(i,j) = matrix[i][j];
+    }
+
+    return R;
+}
+
+arma::vec Sigma7::getQuat() const
+{
+  double px, py, pz;
+  double oa, ob, og;
+  double pg;
+  double matrix[3][3];
+
+  if (drdGetPositionAndOrientation(&px, &py, &pz, &oa, &ob, &og, &pg, matrix, id_) < 0)
+    throwError(__func__, "Failed to get position and orientation: ");
+
+    arma::mat R(3,3);
+    for (int i=0; i<3; i++)
+    {
+      for (int j=0; j<3; j++) R(i,j) = matrix[i][j];
+    }
+
+    return dhd_::rotm2quat(R);
+}
+
+arma::vec Sigma7::getPose() const
+{
+  double px, py, pz;
+  double oa, ob, og;
+  double pg;
+  double matrix[3][3];
+
+  if (drdGetPositionAndOrientation(&px, &py, &pz, &oa, &ob, &og, &pg, matrix, id_) < 0)
+    throwError(__func__, "Failed to get position and orientation: ");
+
+  arma::mat R(3,3);
+  for (int i=0; i<3; i++)
+  {
+    for (int j=0; j<3; j++) R(i,j) = matrix[i][j];
+  }
+
+  arma::mat Q = dhd_::rotm2quat(R);
+
+  return {px, py, pz, Q(0), Q(1), Q(2), Q(3)};
+}
+
+
+void Sigma7::setWrenchAndGripForce(const arma::vec &wrench, double grip_force)
+{
+  if (drdSetForceAndTorqueAndGripperForce(wrench(0), wrench(1), wrench(2),  wrench(3), wrench(4), wrench(5), grip_force, id_) < 0)
+    throwError(__func__, "Failed to set wrench and gripper force: ");
 }
 
 
 void Sigma7::setForce(const arma::vec &force)
 {
   int ret = dhdSetForce(force(0), force(1), force(2), id_);
-  if (ret < 0) throwError("setForce");
+  if (ret < 0) throwError(__func__);
   else if (ret == DHD_MOTOR_SATURATED) PRINT_WARNING_MSG("[Sigma7::setForce]: DHD_MOTOR_SATURATED\n");
 
 }
@@ -59,137 +206,28 @@ void Sigma7::setForce(const arma::vec &force)
 void Sigma7::setWrench(const arma::vec &wrench)
 {
   int ret = dhdSetForceAndTorque(wrench(0), wrench(1), wrench(2), wrench(3), wrench(4), wrench(5), id_);
-  if (ret < 0) throwError("setWrench");
+  if (ret < 0) throwError(__func__);
   else if (ret == DHD_MOTOR_SATURATED) PRINT_WARNING_MSG("[Sigma7::setWrench]: DHD_MOTOR_SATURATED\n");
 
 }
 
-arma::vec Sigma7::getEePos() const
-{
-  double px, py, pz;
-  int ret = dhdGetPosition(&px, &py, &pz, id_);
-  if (ret < 0) throwError("getEePos");
-  else if (ret == 0) PRINT_WARNING_MSG("[Sigma7::getEePos]: DHD_TIMEGUARD\n");
-
-  return arma::vec({px, py, pz});
-}
-
-arma::mat Sigma7::getWristRotm() const
-{
-  arma::mat R(3,3);
-
-  double tmp[3][3];
-  int ret = dhdGetOrientationFrame(tmp, id_);
-  if (ret < 0) throwError("getWristRotm");
-  else if (ret == 0) PRINT_WARNING_MSG("[Sigma7::getWristRotm]: DHD_TIMEGUARD\n");
-
-  for (int i=0; i<3; i++)
-  {
-    for (int j=0; j<3; j++) R(i,j) = tmp[i][j];
-  }
-
-  return R;
-}
-
-arma::vec Sigma7::getEePose() const
-{
-  double px, py, pz;
-  double tmp[3][3];
-
-  int ret = dhdGetPositionAndOrientationFrame(&px, &py, &pz, tmp, id_);
-  if (ret < 0) throwError("getEePose");
-  else if (ret == 0) PRINT_WARNING_MSG("[Sigma7::getEePose]: DHD_TIMEGUARD\n");
-
-  arma::mat R(3,3);
-  for (int i=0; i<3; i++)
-  {
-    for (int j=0; j<3; j++) R(i,j) = tmp[i][j];
-  }
-
-  arma::vec pos = {px, py, pz};
-  arma::vec quat = dhd_::rotm2quat(R);
-
-  return arma::join_vert(pos, quat);
-}
 
 
-arma::vec Sigma7::getForce() const
-{
-  double fx, fy, fz;
-  if (dhdGetForce(&fx, &fy, &fz, id_) < 0) throwError("getForce");
-
-  return arma::vec({fx, fy, fz});
-}
-
-arma::vec Sigma7::getWrench() const
-{
-  double fx, fy, fz, tx, ty, tz;
-  if (dhdGetForceAndTorque(&fx, &fy, &fz, &tx, &ty, &tz, id_) < 0) throwError("getWrench");
-
-  return arma::vec({fx, fy, fz, tz, ty, tz});
-}
 
 arma::vec Sigma7::getLinVel() const
 {
   double vx, vy, vz;
-  if (dhdGetForce(&vx, &vy, &vz, id_) < 0) throwError("getLinVel");
+  if (dhdGetForce(&vx, &vy, &vz, id_) < 0) throwError(__func__);
 
   return arma::vec({vx, vy, vz});
 }
 
-double Sigma7::getGripperForce() const
-{
-  double fx, fy, fz, tx, ty, tz, f_grip;
-  if (dhdGetForceAndTorqueAndGripperForce(&fx, &fy, &fz, &tx, &ty, &tz, &f_grip, id_) < 0) throwError("getGripperForce");
-
-  return f_grip;
-}
-
-double Sigma7::getGripperAngle() const
-{
-  double grip_ang;
-  int ret = dhdGetGripperAngleRad(&grip_ang, id_);
-  if (ret < 0) throwError("getGripperAngle");
-  else if (ret == 0) PRINT_WARNING_MSG("[Sigma7::getGripperAngle]: DHD_TIMEGUARD\n");
-
-  return grip_ang;
-}
-
-double Sigma7::getGripperOpenDist() const
-{
-  double fing_pos;
-  int ret = dhdGetGripperGap(&fing_pos, id_);
-  if (ret < 0) throwError("getGripperFingerPos");
-  else if (ret == 0) PRINT_WARNING_MSG("[Sigma7::getGripperFingerPos]: DHD_TIMEGUARD\n");
-
-  return fing_pos;
-}
-
-double Sigma7::getGripperAngVel() const
-{
-  double ang_vel;
-  int ret = dhdGetGripperAngularVelocityRad(&ang_vel, id_);
-  if (ret < 0) throwError("getGripperAngVel");
-  else if (ret == 0) PRINT_WARNING_MSG("[Sigma7::getGripperAngVel]: DHD_TIMEGUARD\n");
-
-  return ang_vel;
-}
-
-double Sigma7::getGripperLinVel() const
-{
-  double lin_vel;
-  int ret = dhdGetGripperLinearVelocity(&lin_vel, id_);
-  if (ret < 0) throwError("getGripperLinVel");
-  else if (ret == 0) PRINT_WARNING_MSG("[Sigma7::getGripperLinVel]: DHD_TIMEGUARD\n");
-
-  return lin_vel;
-}
 
 
 void Sigma7::gravityComp(bool set)
 {
   int val = set?DHD_ON:DHD_OFF;
-  if (dhdSetGravityCompensation(val,id_) < 0) throwError("gravityComp");
+  if (dhdSetGravityCompensation(val,id_) < 0) throwError(__func__);
 }
 
 bool Sigma7::isButtonPressed() const
@@ -197,17 +235,16 @@ bool Sigma7::isButtonPressed() const
   return dhdGetButton(0, id_);
 }
 
-double Sigma7::getEndEffectorMass() const
+void Sigma7::waitNextCycle() const
 {
-  double mass;
-  if (dhdGetEffectorMass(&mass, id_) < 0) throwError("getEndEffectorMass");
-
-  return mass;
+  drdWaitForTick(id_);
 }
 
-void Sigma7::throwError(const std::string fun_name) const
+void Sigma7::throwError(const std::string &fun_name, const std::string &msg) const
 {
-  throw std::runtime_error("[Sigma7::" + fun_name + "Sigma7]: " + dhdErrorGetLastStr());
+  drdSleep(2.0);
+  drdClose(id_);
+  throw std::runtime_error("[Sigma7::" + fun_name + " - device id: " + std::to_string(id_) + "]: " + msg + dhdErrorGetLastStr());
 }
 
 

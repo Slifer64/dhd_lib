@@ -24,7 +24,7 @@ class Sigma7
 {
 public:
 
-  Sigma7(int i = 0);
+  Sigma7(int i = -1);
 
   ~Sigma7();
 
@@ -34,40 +34,48 @@ public:
 
   void calibrate();
 
+  void waitNextCycle() const;
 
+  double getCtrlCycle() const;
+
+  bool isButtonPressed() const;
+
+  void setPosCtrl(bool set);
+  void setOrientCtrl(bool set);
+  void setGripCtrl(bool set);
+
+  arma::vec getPosition() const;
+  arma::vec getRotm() const;
+  arma::vec getQuat() const;
+  arma::vec getPose() const;
+
+  arma::vec getTwist() const;
+  double getGripperVel() const;
+  arma::vec getWrench() const;
+  double getGripperForce() const;
+
+
+  void setWrenchAndGripForce(const arma::vec &wrench, double grip_force);
 
   void setForce(const arma::vec &force);
   void setWrench(const arma::vec &wrench);
 
-  arma::mat getWristRotm() const;
-  arma::vec getEePos() const;
-
-  arma::vec getEePose() const;
-
-
-  arma::vec getForce() const;
-
-  arma::vec getWrench() const;
-
   arma::vec getLinVel() const;
 
-  double getGripperForce() const;
-  double getGripperAngle() const;
-  double getGripperOpenDist() const;
-  double getGripperAngVel() const;
-  double getGripperLinVel() const;
 
   void gravityComp(bool set);
 
-  bool isButtonPressed() const;
+
 
   double getEndEffectorMass() const;
+
+
 
 private:
 
   int id_;
 
-  void throwError(const std::string fun_name) const;
+  void throwError(const std::string &fun_name, const std::string &msg=0) const;
 
 }; // Sigma7
 

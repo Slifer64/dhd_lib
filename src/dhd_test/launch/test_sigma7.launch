@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<launch>
+
+    <node pkg="dhd_test" type="test_sigma7" name="test_sigma7_node"
+          output="screen" cwd="node" required="true">
+
+        <rosparam>
+
+        </rosparam>
+
+    </node>
+
+</launch>
