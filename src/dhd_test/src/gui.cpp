@@ -33,6 +33,14 @@ MainWindow::MainWindow(MainCtrl *main_ctrl, QWidget *parent) : QMainWindow(paren
   // ===========  View Dialogs  ===================
   // ==============================================
 
+  arma::vec jlow_lim = main_ctrl->getWristJointsLowerLim() * 180/3.14159265359;
+  arma::vec jup_lim = main_ctrl->getWristJointsUpperLim() * 180/3.14159265359;
+  gui_::ViewJPosDialog *view_wrist_joints_dialog = new gui_::ViewJPosDialog(jlow_lim, jup_lim, [this](){ return this->main_ctrl->getWristJoints(); }, this);
+  view_wrist_joints_dialog->setTitle("Wrist joints");
+  view_wrist_joints_act = new QAction(tr("View wrist joints"), this);
+  view_wrist_joints_act->setStatusTip(tr("Opens a window displaying the wrist's joints."));
+  QObject::connect( view_wrist_joints_act, &QAction::triggered, this, [view_wrist_joints_dialog](){ view_wrist_joints_dialog->launch();} );
+
   gui_::ViewWrenchDialog *view_wrench_dialog = new gui_::ViewWrenchDialog([this](){ return this->main_ctrl->getWrench(); }, [this](){ return arma::mat().eye(3,3); }, this);
   view_wrench_dialog->setTitle("Wrench");
   view_wrench_act = new QAction(tr("View wrench"), this);
@@ -45,6 +53,7 @@ MainWindow::MainWindow(MainCtrl *main_ctrl, QWidget *parent) : QMainWindow(paren
   view_pose_act = new QAction(tr("View pose"), this);
   view_pose_act->setStatusTip(tr("Opens a window displaying the end-effector pose."));
   QObject::connect( view_pose_act, &QAction::triggered, this, [view_pose_dialog](){ view_pose_dialog->launch();} );
+
 
   // =========================================================
   // ===========  DOFs control layout  ===================
@@ -74,7 +83,7 @@ MainWindow::MainWindow(MainCtrl *main_ctrl, QWidget *parent) : QMainWindow(paren
   // ==============================================
   goto_null_pose_btn = new QPushButton("Goto null pose");
   goto_null_pose_btn->setFont(font1);
-  QObject::connect( goto_null_pose_btn, &QPushButton::pressed, this, [this](){ this->main_ctrl->gotoNullPose());} );
+  QObject::connect( goto_null_pose_btn, &QPushButton::pressed, this, [this](){ this->main_ctrl->gotoNullPose();} );
 
   QVBoxLayout *utils_layout = new QVBoxLayout();
   utils_layout->addWidget(goto_null_pose_btn);
@@ -111,7 +120,7 @@ void MainWindow::createMenu()
   // edit_menu->addSeparator();
 
   QMenu *view_menu = menu_bar->addMenu(tr("&View"));
-  // view_menu->addAction(view_joints_act);
+  view_menu->addAction(view_wrist_joints_act);
   view_menu->addAction(view_pose_act);
   view_menu->addAction(view_wrench_act);
   // view_menu->addSeparator();

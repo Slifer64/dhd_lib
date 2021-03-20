@@ -27,6 +27,7 @@
 #include <gui_lib/utils.h>
 #include <gui_lib/view_pose_dialog.h>
 #include <gui_lib/view_wrench_dialog.h>
+#include <gui_lib/view_jpos_dialog.h>
 
 using namespace as64_;
 
@@ -57,6 +58,9 @@ public:
 
   gui_::ViewPoseDialog *view_pose_dialog;
   QAction *view_pose_act;
+
+  gui_::ViewJPosDialog *view_wrist_joints_dialog;
+  QAction *view_wrist_joints_act;
 
   QPushButton *goto_null_pose_btn;
 

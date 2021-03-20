@@ -12,6 +12,8 @@ MainCtrl::MainCtrl()
   ctrl_grip = true;
 
   launchGui();
+
+  sigma7->getRotm();
 }
 
 MainCtrl::~MainCtrl()
@@ -33,11 +35,6 @@ void MainCtrl::setOrientCtrl(bool set)
 void MainCtrl::setGripCtrl(bool set)
 {
   sigma7->setGripCtrl(set);
-}
-
-void MainCtrl::gotoNullPose()
-{
-  sigma7->moveToPose({0,0,0,0,0,0,0});
 }
 
 arma::vec MainCtrl::getWrench() const

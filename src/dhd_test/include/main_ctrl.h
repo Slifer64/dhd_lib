@@ -29,7 +29,11 @@ public:
   void setOrientCtrl(bool set);
   void setGripCtrl(bool set);
 
-  void gotoNullPose();
+  void gotoNullPose() { sigma7->moveToNullPose(); }
+
+  arma::vec getWristJointsLowerLim() const { return sigma7->getWristJointsLowerLim(); }
+  arma::vec getWristJointsUpperLim() const { return sigma7->getWristJointsUpperLim(); }
+  arma::vec getWristJoints() const { return sigma7->getWristJoints(); }
 
 private:
 

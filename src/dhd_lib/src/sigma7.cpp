@@ -128,7 +128,7 @@ arma::vec Sigma7::getPosition() const
   return {px, py, pz};
 }
 
-arma::vec Sigma7::getRotm() const
+arma::mat Sigma7::getRotm() const
 {
   double px, py, pz;
   double oa, ob, og;
@@ -138,13 +138,21 @@ arma::vec Sigma7::getRotm() const
   if (drdGetPositionAndOrientation(&px, &py, &pz, &oa, &ob, &og, &pg, matrix, id_) < 0)
     throwError(__func__, "Failed to get position and orientation: ");
 
-    arma::mat R(3,3);
-    for (int i=0; i<3; i++)
-    {
-      for (int j=0; j<3; j++) R(i,j) = matrix[i][j];
-    }
+  arma::mat R(3,3);
+  for (int i=0; i<3; i++)
+  {
+    for (int j=0; j<3; j++) R(i,j) = matrix[i][j];
+  }
 
-    return R;
+  arma::vec wrist_joints = getWristJoints();
+  std::cout << "wrist_joints = " << wrist_joints.t() << "\n";
+
+  arma::mat R2 = dhd_::wristAng2rotm(oa, ob, og);
+
+  std::cout << "R = \n" << R << "\n"
+            << "R2 = \n" << R2 << "\n";
+
+  return R;
 }
 
 arma::vec Sigma7::getQuat() const
@@ -157,13 +165,13 @@ arma::vec Sigma7::getQuat() const
   if (drdGetPositionAndOrientation(&px, &py, &pz, &oa, &ob, &og, &pg, matrix, id_) < 0)
     throwError(__func__, "Failed to get position and orientation: ");
 
-    arma::mat R(3,3);
-    for (int i=0; i<3; i++)
-    {
-      for (int j=0; j<3; j++) R(i,j) = matrix[i][j];
-    }
+  arma::mat R(3,3);
+  for (int i=0; i<3; i++)
+  {
+    for (int j=0; j<3; j++) R(i,j) = matrix[i][j];
+  }
 
-    return dhd_::rotm2quat(R);
+  return dhd_::rotm2quat(R);
 }
 
 arma::vec Sigma7::getPose() const
@@ -187,6 +195,28 @@ arma::vec Sigma7::getPose() const
   return {px, py, pz, Q(0), Q(1), Q(2), Q(3)};
 }
 
+arma::vec Sigma7::getWristJoints() const
+{
+  dhdEnableExpertMode();
+
+  double j0, j1, j2;
+  if (dhdGetWristJointAngles(&j0, &j1, &j2, id_) < 0)
+    throwError(__func__, "Failed to get wrist joints: ");
+
+  dhdDisableExpertMode();
+
+  return {j0, j1, j2};
+}
+
+arma::vec Sigma7::getWristJointsUpperLim() const
+{
+  return {1.72848, 1.2163, 0.3514};
+}
+
+arma::vec Sigma7::getWristJointsLowerLim() const
+{
+  return {-2.3534, -1.22546, -3.13459};
+}
 
 void Sigma7::setWrenchAndGripForce(const arma::vec &wrench, double grip_force)
 {
@@ -194,6 +224,14 @@ void Sigma7::setWrenchAndGripForce(const arma::vec &wrench, double grip_force)
     throwError(__func__, "Failed to set wrench and gripper force: ");
 }
 
+void Sigma7::moveToNullPose()
+{
+  double p[DHD_MAX_DOF];
+  memset(p, 0, DHD_MAX_DOF);
+
+  if ( drdMoveTo(p, true, id_) )
+    throwError(__func__, "Failed to move to null pose: ");
+}
 
 void Sigma7::setForce(const arma::vec &force)
 {
