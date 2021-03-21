@@ -44,6 +44,14 @@ public:
 
 signals:
   void closeSignal();
+  void showInfoMsgSignal(const char *msg);
+  void showWarnMsgSignal(const char *msg);
+  void showErrMsgSignal(const char *msg);
+
+private slots:
+  void showInfoMsg(const char *msg);
+  void showWarnMsg(const char *msg);
+  void showErrMsg(const char *msg);
 
 public:
 
@@ -63,6 +71,10 @@ public:
   QAction *view_wrist_joints_act;
 
   QPushButton *goto_null_pose_btn;
+
+  QPushButton *start_rec_btn;
+  QPushButton *stop_rec_btn;
+  QPushButton *replay_traj_btn;
 
   void createMenu();
 

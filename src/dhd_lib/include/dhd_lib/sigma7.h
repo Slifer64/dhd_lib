@@ -44,6 +44,9 @@ public:
   void setOrientCtrl(bool set);
   void setGripCtrl(bool set);
 
+  void setPos(const arma::vec &pos);
+  void setWristJoints(const arma::vec &wrist_joints);
+
   void moveToNullPose();
 
   void moveToPosWristJoints(const arma::vec &pos, const arma::vec &wrist_joints, bool is_blocking=true);

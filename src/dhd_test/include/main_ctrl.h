@@ -12,6 +12,8 @@
 #include <dhd_lib/sigma7.h>
 #include <gui.h>
 
+#include <thread_lib/thread_lib.h>
+
 using namespace as64_;
 
 
@@ -35,7 +37,20 @@ public:
   arma::vec getWristJointsUpperLim() const { return sigma7->getWristJointsUpperLim(); }
   arma::vec getWristJoints() const { return sigma7->getWristJoints(); }
 
+  bool startRecording();
+  void stopRecording();
+  bool isRecData() const { return Pos_data.size()!=0; }
+
+  void replayRecTraj();
+
 private:
+
+  thr_::Semaphore rec_finish_sem;
+  bool rec_data_on;
+  arma::rowvec Time_data;
+  arma::mat Pos_data;
+  arma::mat Quat_data;
+  arma::mat Wris_joint_data;
 
   void launchGui();
 

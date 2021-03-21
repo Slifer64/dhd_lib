@@ -9,6 +9,10 @@ MainWindow::MainWindow(MainCtrl *main_ctrl, QWidget *parent) : QMainWindow(paren
   std::vector<std::string> priority_name = {"IdlePriority", "LowestPriority", "LowPriority", "NormalPriority", "HighPriority", "HighestPriority", "TimeCriticalPriority", "InheritPriority"};
   QThread::Priority priority = QThread::currentThread()->priority();
 
+  QObject::connect( this, SIGNAL(showInfoMsgSignal(const char *)), this, SLOT(showInfoMsg(const char *)) );
+  QObject::connect( this, SIGNAL(showWarnMsgSignal(const char *)), this, SLOT(showWarnMsg(const char *)) );
+  QObject::connect( this, SIGNAL(showErrMsgSignal(const char *)), this, SLOT(showErrMsg(const char *)) );
+
   //this->resize(400,350);
   this->setWindowTitle("Main window");
 
@@ -88,6 +92,51 @@ MainWindow::MainWindow(MainCtrl *main_ctrl, QWidget *parent) : QMainWindow(paren
   QVBoxLayout *utils_layout = new QVBoxLayout();
   utils_layout->addWidget(goto_null_pose_btn);
 
+  // ==============================================
+  // ===========  Record layout  ===================
+  // ==============================================
+  QLabel *record_lb = new QLabel("Record Trajectory");
+  record_lb->setFont(font1);
+  record_lb->setAlignment(Qt::AlignCenter);
+
+  start_rec_btn = new QPushButton("start");
+  start_rec_btn->setFont(font1);
+  QObject::connect( start_rec_btn, &QPushButton::pressed, this, [this]()
+  {
+    bool success = this->main_ctrl->startRecording();
+    if (success)
+    {
+      stop_rec_btn->setEnabled(true);
+      start_rec_btn->setStyleSheet("QPushButton { color: rgb(0, 0, 250); background-color: rgb(0, 255, 0); }");
+    }
+  });
+
+  stop_rec_btn = new QPushButton("stop");
+  stop_rec_btn->setFont(font1);
+  stop_rec_btn->setEnabled(false);
+  QObject::connect( stop_rec_btn, &QPushButton::pressed, this, [this]()
+  {
+    this->main_ctrl->stopRecording();
+    stop_rec_btn->setEnabled(false);
+    replay_traj_btn->setEnabled(this->main_ctrl->isRecData());
+    start_rec_btn->setStyleSheet("QPushButton { color: black; background-color: rgb(225, 225, 225) }");
+  });
+
+  QHBoxLayout *start_stop_rec_layout = new QHBoxLayout;
+  start_stop_rec_layout->addWidget(start_rec_btn);
+  start_stop_rec_layout->addWidget(stop_rec_btn);
+
+  replay_traj_btn = new QPushButton("replay trajectory");
+  replay_traj_btn->setFont(font1);
+  replay_traj_btn->setEnabled(main_ctrl->isRecData());
+  QObject::connect( replay_traj_btn, &QPushButton::pressed, this, [this]()
+  { this->main_ctrl->replayRecTraj(); });
+
+  QVBoxLayout *rec_layout = new QVBoxLayout;
+  rec_layout->addWidget(record_lb);
+  rec_layout->addLayout(start_stop_rec_layout);
+  rec_layout->addWidget(replay_traj_btn);
+
   // =============================================
   // ===========  Main Layout  ===================
   // =============================================
@@ -95,6 +144,7 @@ MainWindow::MainWindow(MainCtrl *main_ctrl, QWidget *parent) : QMainWindow(paren
   QHBoxLayout *main_layout = new QHBoxLayout(central_widget);
   main_layout->addLayout(dofs_ctrl_layout);
   main_layout->addLayout(utils_layout);
+  main_layout->addLayout(rec_layout);
 
   createMenu();
 }
@@ -127,4 +177,40 @@ void MainWindow::createMenu()
   // view_menu->addAction(train_win->plot_train_data_act);
   // view_menu->addAction(train_win->plot_demo_sim_data_act);
 
+}
+
+void MainWindow::showInfoMsg(const char *msg)
+{
+  QMessageBox msg_box;
+
+  msg_box.setText(msg);
+  msg_box.setIcon(QMessageBox::Information);
+  msg_box.setStandardButtons(QMessageBox::Ok);
+  msg_box.setModal(true);
+
+  msg_box.exec();
+}
+
+void MainWindow::showWarnMsg(const char *msg)
+{
+  QMessageBox msg_box;
+
+  msg_box.setText(msg);
+  msg_box.setIcon(QMessageBox::Warning);
+  msg_box.setStandardButtons(QMessageBox::Ok);
+  msg_box.setModal(true);
+
+  msg_box.exec();
+}
+
+void MainWindow::showErrMsg(const char *msg)
+{
+  QMessageBox msg_box;
+
+  msg_box.setText(msg);
+  msg_box.setIcon(QMessageBox::Critical);
+  msg_box.setStandardButtons(QMessageBox::Ok);
+  msg_box.setModal(true);
+
+  msg_box.exec();
 }

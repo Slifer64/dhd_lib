@@ -30,6 +30,7 @@ find_package(catkin REQUIRED COMPONENTS
   roslib
   dhd_lib
   gui_lib
+  thread_lib
 )
 
 catkin_package(
@@ -60,6 +61,7 @@ target_link_libraries(test_sigma7
   dhd_lib
   ${Qt_LIBRARIES}
   gui_lib
+  thread_lib
 )
 
 

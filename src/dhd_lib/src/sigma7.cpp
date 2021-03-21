@@ -123,6 +123,18 @@ void Sigma7::moveToNullPose()
   // setGripCtrl(grip_ctrl_0);
 }
 
+void Sigma7::setPos(const arma::vec &pos)
+{
+  if (drdTrackPos(pos(0), pos(1), pos(2), id_) < 0)
+    throwError(__func__,"Failed to set Cartesian position: ");
+}
+
+void Sigma7::setWristJoints(const arma::vec &wrist_joints)
+{
+  if (drdTrackRot(wrist_joints(0), wrist_joints(1), wrist_joints(2), id_) < 0)
+    throwError(__func__,"Failed to set wrist joints: ");
+}
+
 arma::vec Sigma7::getTwist() const
 {
   double vx, vy, vz, wx, wy, wz, vg;
