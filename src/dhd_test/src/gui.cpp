@@ -33,9 +33,9 @@ MainWindow::MainWindow(MainCtrl *main_ctrl, QWidget *parent) : QMainWindow(paren
   // lh_label->setFont(font1);
   // lh_label->setAlignment(Qt::AlignCenter);
 
-  // ==============================================
-  // ===========  View Dialogs  ===================
-  // ==============================================
+  // =============================================
+  // ===========  Menu Actions ===================
+  // =============================================
 
   arma::vec jlow_lim = main_ctrl->getWristJointsLowerLim() * 180/3.14159265359;
   arma::vec jup_lim = main_ctrl->getWristJointsUpperLim() * 180/3.14159265359;
@@ -57,6 +57,16 @@ MainWindow::MainWindow(MainCtrl *main_ctrl, QWidget *parent) : QMainWindow(paren
   view_pose_act = new QAction(tr("View pose"), this);
   view_pose_act->setStatusTip(tr("Opens a window displaying the end-effector pose."));
   QObject::connect( view_pose_act, &QAction::triggered, this, [view_pose_dialog](){ view_pose_dialog->launch();} );
+
+
+  save_rec_data_act = new QAction(tr("Save rec data"), this);
+  save_rec_data_act->setStatusTip(tr("Opens a to select the path for storing the recorded data."));
+  QObject::connect( save_rec_data_act, &QAction::triggered, this, [this]()
+  {
+    std::string path = QFileDialog::getSaveFileName(this, tr("Save recorded data"), this->main_ctrl->getDefaultDataPath().c_str(), "Binary files (*.bin)").toStdString();
+    if (path.empty()) return;
+    this->main_ctrl->saveRecData(path);
+  });
 
 
   // =========================================================
@@ -209,7 +219,7 @@ void MainWindow::createMenu()
   menu_bar->setNativeMenuBar(false);
 
   QMenu *file_menu = menu_bar->addMenu(tr("&File"));
-  // file_menu->addAction(train_win->load_train_data_act);
+  file_menu->addAction(save_rec_data_act);
   // file_menu->addAction(load_model_act);
   // file_menu->addSeparator();
 

@@ -71,6 +71,8 @@ public:
   gui_::ViewJPosDialog *view_wrist_joints_dialog;
   QAction *view_wrist_joints_act;
 
+  QAction *save_rec_data_act;
+
   QPushButton *goto_null_pose_btn;
 
   QPushButton *start_rec_btn;

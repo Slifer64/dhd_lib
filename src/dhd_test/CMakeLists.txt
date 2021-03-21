@@ -41,6 +41,7 @@ catkin_package(
 
 include_directories(
   include
+  /usr/include/eigen3
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -49,6 +50,7 @@ add_executable(test_sigma7
   src/gui.cpp
   src/main.cpp
   src/main_ctrl.cpp
+  src/file_io.cpp
 )
 
 add_dependencies(test_sigma7

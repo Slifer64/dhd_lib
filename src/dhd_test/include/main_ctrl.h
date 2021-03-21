@@ -7,6 +7,7 @@
 #include <thread>
 
 #include <ros/ros.h>
+#include <ros/package.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 #include <dhd_lib/sigma7.h>
@@ -44,7 +45,13 @@ public:
   void startTrajReplay();
   void stopTrajReplay();
 
+  void saveRecData(const std::string &filename) const;
+
+  std::string getDefaultDataPath() const { return ros::package::getPath("dhd_test") + "/data/"; }
+
 private:
+
+  void trimRecData();
 
   bool traj_replay_;
   thr_::Semaphore replay_stop_sem;
@@ -54,7 +61,7 @@ private:
   arma::rowvec Time_data;
   arma::mat Pos_data;
   arma::mat Quat_data;
-  arma::mat Wris_joint_data;
+  arma::mat Wrist_joint_data;
 
   void launchGui();
 
