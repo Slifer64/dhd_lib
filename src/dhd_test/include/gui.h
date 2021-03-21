@@ -47,6 +47,7 @@ signals:
   void showInfoMsgSignal(const char *msg);
   void showWarnMsgSignal(const char *msg);
   void showErrMsgSignal(const char *msg);
+  void replayTrajStoppedSignal();
 
 private slots:
   void showInfoMsg(const char *msg);
@@ -74,7 +75,8 @@ public:
 
   QPushButton *start_rec_btn;
   QPushButton *stop_rec_btn;
-  QPushButton *replay_traj_btn;
+  QPushButton *start_replay_traj_btn;
+  QPushButton *stop_replay_traj_btn;
 
   void createMenu();
 

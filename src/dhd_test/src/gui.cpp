@@ -81,6 +81,7 @@ MainWindow::MainWindow(MainCtrl *main_ctrl, QWidget *parent) : QMainWindow(paren
   dofs_ctrl_layout->addWidget(pos_ctrl_chbx);
   dofs_ctrl_layout->addWidget(orient_ctrl_chbx);
   dofs_ctrl_layout->addWidget(grip_ctrl_chbx);
+  dofs_ctrl_layout->addStretch(0);
 
   // ==============================================
   // ===========  Utils layout  ===================
@@ -91,10 +92,11 @@ MainWindow::MainWindow(MainCtrl *main_ctrl, QWidget *parent) : QMainWindow(paren
 
   QVBoxLayout *utils_layout = new QVBoxLayout();
   utils_layout->addWidget(goto_null_pose_btn);
+  utils_layout->addStretch(0);
 
-  // ==============================================
-  // ===========  Record layout  ===================
-  // ==============================================
+  // ===============================================
+  // ===========  Record frame  ===================
+  // ===============================================
   QLabel *record_lb = new QLabel("Record Trajectory");
   record_lb->setFont(font1);
   record_lb->setAlignment(Qt::AlignCenter);
@@ -118,7 +120,7 @@ MainWindow::MainWindow(MainCtrl *main_ctrl, QWidget *parent) : QMainWindow(paren
   {
     this->main_ctrl->stopRecording();
     stop_rec_btn->setEnabled(false);
-    replay_traj_btn->setEnabled(this->main_ctrl->isRecData());
+    start_replay_traj_btn->setEnabled(this->main_ctrl->isRecData());
     start_rec_btn->setStyleSheet("QPushButton { color: black; background-color: rgb(225, 225, 225) }");
   });
 
@@ -126,16 +128,62 @@ MainWindow::MainWindow(MainCtrl *main_ctrl, QWidget *parent) : QMainWindow(paren
   start_stop_rec_layout->addWidget(start_rec_btn);
   start_stop_rec_layout->addWidget(stop_rec_btn);
 
-  replay_traj_btn = new QPushButton("replay trajectory");
-  replay_traj_btn->setFont(font1);
-  replay_traj_btn->setEnabled(main_ctrl->isRecData());
-  QObject::connect( replay_traj_btn, &QPushButton::pressed, this, [this]()
-  { this->main_ctrl->replayRecTraj(); });
-
   QVBoxLayout *rec_layout = new QVBoxLayout;
   rec_layout->addWidget(record_lb);
   rec_layout->addLayout(start_stop_rec_layout);
-  rec_layout->addWidget(replay_traj_btn);
+
+  QFrame *rec_frame = new QFrame;
+  rec_frame->setFrameStyle(QFrame::Box | QFrame::Raised);
+  rec_frame->setLineWidth(1);
+  rec_frame->setLayout(rec_layout);
+
+  // ===================================================
+  // ===========  Traj Replay frame  ===================
+  // ===================================================
+
+  QLabel *replay_traj_lb = new QLabel("replay trajectory");
+  replay_traj_lb->setFont(font1);
+  replay_traj_lb->setAlignment(Qt::AlignCenter);
+  start_replay_traj_btn = new QPushButton("start");
+  start_replay_traj_btn->setFont(font1);
+  start_replay_traj_btn->setEnabled(false);
+  QObject::connect( start_replay_traj_btn, &QPushButton::pressed, this, [this]()
+  {
+    this->main_ctrl->startTrajReplay();
+    stop_replay_traj_btn->setEnabled(true);
+    start_replay_traj_btn->setStyleSheet("QPushButton { color: rgb(0, 0, 250); background-color: rgb(0, 255, 0); }");
+  });
+  stop_replay_traj_btn = new QPushButton("stop");
+  stop_replay_traj_btn->setFont(font1);
+  stop_replay_traj_btn->setEnabled(false);
+  QObject::connect( stop_replay_traj_btn, &QPushButton::pressed, this, [this]()
+  {
+    this->main_ctrl->stopTrajReplay();
+    stop_replay_traj_btn->setEnabled(false);
+    start_replay_traj_btn->setEnabled(this->main_ctrl->isRecData());
+    start_replay_traj_btn->setStyleSheet("QPushButton { color: black; background-color: rgb(225, 225, 225) }");
+  });
+  QObject::connect( this, &MainWindow::replayTrajStoppedSignal, this, [this](){ emit this->stop_replay_traj_btn->pressed(); } );
+
+  QHBoxLayout *start_stop_replay_layout = new QHBoxLayout;
+  start_stop_replay_layout->addWidget(start_replay_traj_btn);
+  start_stop_replay_layout->addWidget(stop_replay_traj_btn);
+
+  QVBoxLayout *replay_layout = new QVBoxLayout;
+  replay_layout->addWidget(replay_traj_lb);
+  replay_layout->addLayout(start_stop_replay_layout);
+
+  QFrame *replay_frame = new QFrame;
+  replay_frame->setFrameStyle(QFrame::Box | QFrame::Raised);
+  replay_frame->setLineWidth(1);
+  replay_frame->setLayout(replay_layout);
+
+  // --------------------------------------------
+
+  QVBoxLayout *rec_replay_layout = new QVBoxLayout;
+  rec_replay_layout->addWidget(rec_frame);
+  rec_replay_layout->addWidget(replay_frame);
+
 
   // =============================================
   // ===========  Main Layout  ===================
@@ -144,7 +192,7 @@ MainWindow::MainWindow(MainCtrl *main_ctrl, QWidget *parent) : QMainWindow(paren
   QHBoxLayout *main_layout = new QHBoxLayout(central_widget);
   main_layout->addLayout(dofs_ctrl_layout);
   main_layout->addLayout(utils_layout);
-  main_layout->addLayout(rec_layout);
+  main_layout->addLayout(rec_replay_layout);
 
   createMenu();
 }

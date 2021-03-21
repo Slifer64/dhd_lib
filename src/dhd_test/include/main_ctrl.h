@@ -41,11 +41,15 @@ public:
   void stopRecording();
   bool isRecData() const { return Pos_data.size()!=0; }
 
-  void replayRecTraj();
+  void startTrajReplay();
+  void stopTrajReplay();
 
 private:
 
-  thr_::Semaphore rec_finish_sem;
+  bool traj_replay_;
+  thr_::Semaphore replay_stop_sem;
+
+  thr_::Semaphore rec_stop_sem;
   bool rec_data_on;
   arma::rowvec Time_data;
   arma::mat Pos_data;

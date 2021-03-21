@@ -85,7 +85,7 @@ bool MainCtrl::startRecording()
 
       t += timer.elapsedSec();
     }
-    this->rec_finish_sem.notify();
+    this->rec_stop_sem.notify();
   }).detach();
 
   return true;
@@ -94,27 +94,46 @@ bool MainCtrl::startRecording()
 void MainCtrl::stopRecording()
 {
   rec_data_on = false;
-  if (!rec_finish_sem.wait_until(500))
-   gui->showWarnMsgSignal("Time limit exceeded on waiting for recording thread to stop...");
+  if (!rec_stop_sem.wait_until(1000))
+    gui->showWarnMsgSignal("Timeout on waiting for recording thread to stop...");
 
   std::cout << "Mean rec cycle: " << arma::mean(arma::diff(Time_data))*1000 << " ms\n";
 }
 
-void MainCtrl::replayRecTraj()
+void MainCtrl::startTrajReplay()
 {
-  sigma7->moveToPosWristJoints(Pos_data.col(0), Wris_joint_data.col(0), true);
-  try
+  traj_replay_ = true;
+
+  std::thread([this]()
   {
-    int n_data = Time_data.size();
-    for (int i=0; i<n_data; i++)
+    try
     {
-      sigma7->setPos(Pos_data.col(i));
-      sigma7->setWristJoints(Wris_joint_data.col(i));
-      sigma7->waitNextCycle();
+      sigma7->moveToPosWristJoints(Pos_data.col(0), Wris_joint_data.col(0), true);
+      int n_data = Time_data.size();
+      for (int i=0; i<n_data; i++)
+      {
+        std::cout << "i = " << i << "\n";
+        if (!traj_replay_) break;
+        sigma7->setPos(Pos_data.col(i));
+        sigma7->setWristJoints(Wris_joint_data.col(i));
+        sigma7->waitNextCycle();
+      }
+      replay_stop_sem.notify();
+      stopTrajReplay();
     }
-  }
-  catch(std::exception &e)
-  {
-    gui->showErrMsgSignal(e.what());
-  }
+    catch(std::exception &e)
+    {
+      replay_stop_sem.notify();
+      emit gui->replayTrajStoppedSignal();
+      gui->showErrMsgSignal(e.what());
+    }
+  }).detach();
+}
+
+void MainCtrl::stopTrajReplay()
+{
+  traj_replay_ = false;
+
+  if (!replay_stop_sem.wait_until(1000))
+    gui->showWarnMsgSignal("Timeout on waiting for traj-replay thread to stop...");
 }
