@@ -21,10 +21,7 @@ void PRINT_ERROR_MSG(const std::string &msg, std::ostream &out = std::cout);
 // ====================   MATH  ============================
 
 arma::vec rotm2quat(const arma::mat &rotm);
-
 arma::mat axang2rotm(const arma::vec &axis, double angle);
-
-arma::mat wristAng2rotm(double oa, double ob, double og);
 
 arma::mat rotx(double a);
 arma::mat roty(double a);

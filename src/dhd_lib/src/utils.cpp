@@ -60,71 +60,14 @@ arma::mat axang2rotm(const arma::vec &axis, double angle)
            { t*x*z - y*s,   t*y*z + x*s,      t*z*z + c } };
 }
 
-arma::mat gMat(double theta, double a)
-{
-  double sin_th = std::sin(theta);
-  double cos_th = std::cos(theta);
-  double sin_a = std::sin(a);
-  double cos_a = std::cos(a);
-
-  return { {       cos_th,       -sin_th,       0 },
-           { sin_th*cos_a,  cos_th*cos_a,  -sin_a },
-           { sin_th*sin_a,  cos_th*sin_a,   cos_a } };
-}
-
-arma::mat wristAng2rotm(double alpha, double beta, double gamma)
-{
-  arma::mat R(3,3);
-
-  double pi = 3.14159265359;
-
-  arma::vec x = {1, 0, 0};
-  arma::vec y = {0, 1, 0};
-  arma::vec z = {0, 0, 1};
-
-  arma::mat Rx_alpha = rotx(alpha);
-
-  arma::vec y1 = Rx_alpha*y;
-  arma::vec z1 = Rx_alpha*z;
-
-  arma::mat Ry1_beta = axang2rotm(y1, beta);
-
-  arma::vec z2 = Ry1_beta * z1;
-
-  arma::mat Rz2_gamma = axang2rotm(z2, gamma);
-
-  return Rz2_gamma * Ry1_beta * Rx_alpha;
-
-  //return gMat(oa, pi)*gMat(ob, pi)*gMat(og, pi);
-
-  // double cos_a = std::cos(oa);
-  // double sin_a = std::sin(oa);
-  // double cos_b = std::cos(ob);
-  // double sin_b = std::sin(ob);
-  // double cos_g = std::cos(og);
-  // double sin_g = std::sin(og);
-  //
-  // R(0,0) = cos_a*cos_b;
-  // R(0,1) = cos_a*sin_b*sin_g - sin_a*cos_g;
-  // R(0,2) = cos_a*sin_b*cos_g + sin_a*sin_g;
-  // R(1,0) = sin_a*cos_b;
-  // R(1,1) = sin_a*sin_b*sin_g + cos_a*cos_g;
-  // R(1,2) = sin_a*sin_b*cos_g - cos_a*sin_g;
-  // R(2,0) = -sin_b;
-  // R(2,1) = cos_b*sin_g;
-  // R(2,2) = cos_b*cos_g;
-  //
-  // return R;
-}
-
 arma::mat rotx(double a)
 {
   double sin_a = std::sin(a);
   double cos_a = std::cos(a);
 
-  return { {cos_a, -sin_a,  0},
-           {sin_a,  cos_a,  0},
-           {    0,      0,  1} };
+  return { { 1,     0,      0},
+           { 0, cos_a, -sin_a},
+           { 0, sin_a,  cos_a} };
 }
 
 arma::mat roty(double a)
@@ -142,10 +85,11 @@ arma::mat rotz(double a)
   double sin_a = std::sin(a);
   double cos_a = std::cos(a);
 
-  return { { 1,     0,      0},
-           { 0, cos_a, -sin_a},
-           { 0, sin_a,  cos_a} };
+  return { {cos_a, -sin_a,  0},
+           {sin_a,  cos_a,  0},
+           {    0,      0,  1} };
 }
+
 
 
 } // namespace dhd_

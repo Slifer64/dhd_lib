@@ -70,7 +70,7 @@ MainWindow::MainWindow(MainCtrl *main_ctrl, QWidget *parent) : QMainWindow(paren
 
   grip_ctrl_chbx = new QCheckBox("Gripper control");
   grip_ctrl_chbx->setFont(font1);
-  grip_ctrl_chbx->setChecked(true);
+  grip_ctrl_chbx->setChecked(false);
   QObject::connect( grip_ctrl_chbx, &QCheckBox::stateChanged, this, [this](){ this->main_ctrl->setGripCtrl(grip_ctrl_chbx->isChecked());} );
 
   QVBoxLayout *dofs_ctrl_layout = new QVBoxLayout();

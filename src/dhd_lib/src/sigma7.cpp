@@ -15,21 +15,27 @@ Sigma7::Sigma7(int i)
   // print out device identifier
   if (!drdIsSupported(id_)) throwError(__func__, "Unsupported device: ");
 
-  // perform auto-initialization
-  if (!drdIsInitialized(id_) && drdAutoInit(id_) < 0) throwError(__func__, "Auto-initialization failed: ");
+  PRINT_INFO_MSG("=====================================\n");
+  PRINT_INFO_MSG(std::string("Force Dimension - Sigma7 , SDK-") + dhdGetSDKVersionStr() + "\n");
+  PRINT_INFO_MSG(std::string(dhdGetSystemName()) + " haptic device detected.\n");
+  PRINT_INFO_MSG("=====================================\n");
 
+  // perform auto-initialization
+  if (!drdIsInitialized(id_))
+  {
+    PRINT_WARNING_MSG("Device is not initilized. Auto-initialization...\n");
+    if (drdAutoInit(id_) < 0) throwError(__func__, "Auto-initialization failed: ");
+    PRINT_CONFIRM_MSG("Device initialization completed!\n");
+  }
 
   if (drdStart(id_) < 0) throwError(__func__, "Regulation thread failed to start: ");
-
+  pos_ctrl_ = orient_ctrl_ = grip_ctrl_ = true;
+  setGripCtrl(false);
 
   drdSetForceAndTorqueAndGripperForce (0.0, 0.0, 0.0,  // force
                                        0.0, 0.0, 0.0,  // torque
                                        0.0);           // gripper force
 
-  std::cout << "=====================================\n";
-  std::cout << "Force Dimension - Sigma7 , SDK-" << dhdGetSDKVersionStr() << "\n";
-  std::cout << dhdGetSystemName() << " haptic device detected.\n";
-  std::cout << "=====================================\n";
 }
 
 Sigma7::~Sigma7()
@@ -67,16 +73,54 @@ void Sigma7::calibrate()
 void Sigma7::setPosCtrl(bool set)
 {
   if (drdRegulatePos(set, id_) < 0) throwError(__func__, "Failed to set position control: ");
+  pos_ctrl_ = set;
 }
 
 void Sigma7::setOrientCtrl(bool set)
 {
   if (drdRegulateRot(set, id_) < 0) throwError(__func__, "Failed to set orientation control: ");
+  orient_ctrl_ = set;
 }
 
 void Sigma7::setGripCtrl(bool set)
 {
   if (drdRegulateGrip(set, id_) < 0) throwError(__func__, "Failed to set gripper control: ");
+  grip_ctrl_ = set;
+}
+
+void Sigma7::moveToPosWristJoints(const arma::vec &pos, const arma::vec &wrist_joints, bool is_blocking)
+{
+  double p[7] = {pos(0), pos(1), pos(2), wrist_joints(0), wrist_joints(1), wrist_joints(2), getGripperAngle()};
+
+  std::string warn_msg = "";
+  if (!pos_ctrl_) warn_msg += "Position control is disabled!\n";
+  if (!orient_ctrl_) warn_msg += "Orientation control is disabled!\n";
+  if (!warn_msg.empty()) PRINT_WARNING_MSG("[Sigma7::moveToPosWristJoints]:\n" + warn_msg);
+
+  if (drdMoveTo(p, is_blocking, id_) < 0)
+    throwError(__func__, "Failed to move to requested pose: ");
+}
+
+void Sigma7::moveToNullPose()
+{
+  moveToPosWristJoints({0,0,0}, {0,0,0}, true);
+  // double p[DHD_MAX_DOF];
+  // memset(p, 0, DHD_MAX_DOF);
+  //
+  // bool pos_ctrl_0 = pos_ctrl_;
+  // bool orient_ctrl_0 = orient_ctrl_;
+  // bool grip_ctrl_0 = grip_ctrl_;
+  //
+  // setPosCtrl(true);
+  // setOrientCtrl(true);
+  // setGripCtrl(true);
+  //
+  // if ( drdMoveTo(p, true, id_) )
+  //   throwError(__func__, "Failed to move to null pose: ");
+  //
+  // setPosCtrl(pos_ctrl_0);
+  // setOrientCtrl(orient_ctrl_0);
+  // setGripCtrl(grip_ctrl_0);
 }
 
 arma::vec Sigma7::getTwist() const
@@ -144,14 +188,6 @@ arma::mat Sigma7::getRotm() const
     for (int j=0; j<3; j++) R(i,j) = matrix[i][j];
   }
 
-  arma::vec wrist_joints = getWristJoints();
-  std::cout << "wrist_joints = " << wrist_joints.t() << "\n";
-
-  arma::mat R2 = dhd_::wristAng2rotm(oa, ob, og);
-
-  std::cout << "R = \n" << R << "\n"
-            << "R2 = \n" << R2 << "\n";
-
   return R;
 }
 
@@ -195,6 +231,66 @@ arma::vec Sigma7::getPose() const
   return {px, py, pz, Q(0), Q(1), Q(2), Q(3)};
 }
 
+double Sigma7::getGripperAngle() const
+{
+  double grip_ang;
+  if (dhdGetGripperAngleRad(&grip_ang, id_) < 0)
+    throwError(__func__, "Failed to get gripper angle: ");
+
+  return grip_ang;
+}
+
+arma::mat Sigma7::wristAng2rotm(double j0, double j1, double j2) const
+{
+  // arma::vec ax0 = joint 0 rot axis w.r.t. base frame = {1, 0, 0}
+  // arma::vec ax1 = joint 1 rot axis w.r.t. base frame = {0, 1, 0}
+  // arma::vec ax2 = joint 2 rot axis w.r.t. base frame = {0, 0, 1}
+
+  // first rotation is around ax0 by angle 'j0'
+  arma::mat R_0 = rotx(j0); // axang2rotm(ax0, j0);
+
+  // second rotation is around the new (rotated) axes ax1' = R_0*ax1 by angle 'j1'
+  arma::mat R_1 = axang2rotm(R_0.col(1), j1); // axang2rotm(R_0*ax1, j1)
+
+  // the total rotation so far is R_10 = R_1*R_0
+  arma::mat R_10 = R_1*R_0;
+
+  // third rotation is around the new (rotated) axes ax2' = R_10*ax2 by angle 'j2'
+  arma::mat R_2 = axang2rotm(R_10.col(2), j2);  // axang2rotm(R_10*ax2, j2)
+
+  // final total rotation R_210 = R_2 * R_1 * R_0
+  return R_2 * R_10;
+}
+
+arma::mat Sigma7::getWristRotJacob(double j0, double j1, double j2) const
+{
+  // arma::vec ax0 = joint 0 rot axis w.r.t. base frame = {1, 0, 0}
+  // arma::vec ax1 = joint 1 rot axis w.r.t. base frame = {0, 1, 0}
+  // arma::vec ax2 = joint 2 rot axis w.r.t. base frame = {0, 0, 1}
+
+  // first rotation is around ax0 by angle 'j0'
+  arma::mat R_0 = rotx(j0); // axang2rotm(ax0, j0);
+
+  // second rotation is around the new (rotated) axes ax1' = R_0*ax1 by angle 'j1'
+  arma::mat R_1 = axang2rotm(R_0.col(1), j1); // axang2rotm(R_0*ax1, j1)
+
+  // the total rotation so far is R_10 = R_1*R_0
+  arma::mat R_10 = R_1*R_0;
+
+  arma::mat J(3,3);
+  J.col(0) = arma::vec({1, 0, 0}); // ax0;
+  J.col(1) = R_0.col(1); // R_0*ax1;
+  J.col(2) = R_10.col(2); // R_10*ax2;
+
+  return J;
+}
+
+arma::mat Sigma7::getWristRotJacob() const
+{
+  arma::vec joints = getWristJoints();
+  return getWristRotJacob(joints(0), joints(1), joints(2));
+}
+
 arma::vec Sigma7::getWristJoints() const
 {
   dhdEnableExpertMode();
@@ -222,15 +318,6 @@ void Sigma7::setWrenchAndGripForce(const arma::vec &wrench, double grip_force)
 {
   if (drdSetForceAndTorqueAndGripperForce(wrench(0), wrench(1), wrench(2),  wrench(3), wrench(4), wrench(5), grip_force, id_) < 0)
     throwError(__func__, "Failed to set wrench and gripper force: ");
-}
-
-void Sigma7::moveToNullPose()
-{
-  double p[DHD_MAX_DOF];
-  memset(p, 0, DHD_MAX_DOF);
-
-  if ( drdMoveTo(p, true, id_) )
-    throwError(__func__, "Failed to move to null pose: ");
 }
 
 void Sigma7::setForce(const arma::vec &force)

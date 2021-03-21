@@ -46,13 +46,7 @@ public:
 
   void moveToNullPose();
 
-  void moveToPose(const arma::vec &pose, bool is_blocking=true)
-  {
-   	double p[DHD_MAX_DOF];
-    // for (int i=0; i<pose.size();i++)
-    // if (drdMoveTo(id_) < 0)
-    //   throwError(__func__, "Failed to move to requested pose: ");
-  }
+  void moveToPosWristJoints(const arma::vec &pos, const arma::vec &wrist_joints, bool is_blocking=true);
   //void moveToPos(const arma::vec &pos, bool is_blocking=true);
   //void moveToRot(const arma::vec &quat, bool is_blocking=true);
   //void moveToGrip(const arma::vec &pos, bool is_blocking=true);
@@ -61,6 +55,11 @@ public:
   arma::mat getRotm() const;
   arma::vec getQuat() const;
   arma::vec getPose() const;
+  double getGripperAngle() const;
+
+  arma::mat wristAng2rotm(double j0, double j1, double j2) const;
+  arma::mat getWristRotJacob() const;
+  arma::mat getWristRotJacob(double j0, double j1, double j2) const;
 
   arma::vec getWristJoints() const;
   arma::vec getWristJointsUpperLim() const;
@@ -89,6 +88,10 @@ public:
 
 
 private:
+
+  bool pos_ctrl_;
+  bool orient_ctrl_;
+  bool grip_ctrl_;
 
   int id_;
 
