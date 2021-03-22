@@ -68,7 +68,6 @@ MainWindow::MainWindow(MainCtrl *main_ctrl, QWidget *parent) : QMainWindow(paren
     this->main_ctrl->saveRecData(path);
   });
 
-
   // =========================================================
   // ===========  DOFs control layout  ===================
   // =========================================================
@@ -76,16 +75,19 @@ MainWindow::MainWindow(MainCtrl *main_ctrl, QWidget *parent) : QMainWindow(paren
   pos_ctrl_chbx->setFont(font1);
   pos_ctrl_chbx->setChecked(true);
   QObject::connect( pos_ctrl_chbx, &QCheckBox::stateChanged, this, [this](){ this->main_ctrl->setPosCtrl(pos_ctrl_chbx->isChecked());} );
+  QObject::connect( this, &MainWindow::posCtrlChangedSignal, this, [this](bool set){ this->pos_ctrl_chbx->setChecked(set);} );
 
   orient_ctrl_chbx = new QCheckBox("Orientation control");
   orient_ctrl_chbx->setFont(font1);
   orient_ctrl_chbx->setChecked(true);
   QObject::connect( orient_ctrl_chbx, &QCheckBox::stateChanged, this, [this](){ this->main_ctrl->setOrientCtrl(orient_ctrl_chbx->isChecked());} );
+  QObject::connect( this, &MainWindow::orientCtrlChangedSignal, this, [this](bool set){ this->orient_ctrl_chbx->setChecked(set);} );
 
   grip_ctrl_chbx = new QCheckBox("Gripper control");
   grip_ctrl_chbx->setFont(font1);
   grip_ctrl_chbx->setChecked(false);
   QObject::connect( grip_ctrl_chbx, &QCheckBox::stateChanged, this, [this](){ this->main_ctrl->setGripCtrl(grip_ctrl_chbx->isChecked());} );
+  QObject::connect( this, &MainWindow::gripCtrlChangedSignal, this, [this](bool set){ this->grip_ctrl_chbx->setChecked(set);} );
 
   QVBoxLayout *dofs_ctrl_layout = new QVBoxLayout();
   dofs_ctrl_layout->addWidget(pos_ctrl_chbx);

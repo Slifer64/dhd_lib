@@ -51,6 +51,8 @@ public:
 
 private:
 
+  double Ts;
+
   void trimRecData();
 
   bool traj_replay_;
@@ -71,7 +73,5 @@ private:
   bool gui_finished;
   std::shared_ptr<dhd_::Sigma7> sigma7;
 
-  bool ctrl_pos;
-  bool ctrl_orient;
-  bool ctrl_grip;
+  thr_::Semaphore gui_created_sem;
 };

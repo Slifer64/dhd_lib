@@ -44,7 +44,15 @@ int main(int argc, char* argv[])
 
   MainCtrl main_ctrl;
 
-  while (ros::ok());
+  // while (ros::ok());
+
+  while (true)
+  {
+    if (dhdKbHit() && dhdKbGet()=='q') break;
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+
+  std::cerr << "==========> Terminating!!!!\n";
 
   // sigma7.reset(new dhd_::Sigma7());
   // printStateThread(200);

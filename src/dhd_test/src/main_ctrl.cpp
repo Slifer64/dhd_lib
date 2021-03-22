@@ -5,15 +5,20 @@
 
 MainCtrl::MainCtrl()
 {
+  ros::NodeHandle nh("~");
+  //nh.getParam("Ts",Ts);
+  if (!nh.getParam("Ts",Ts)) throw std::runtime_error("[MainCtrl::MainCtrl]: Failed to load param \"Ts\"");
+
   run_ = true;
   gui_finished = false;
   sigma7.reset(new dhd_::Sigma7);
 
-  ctrl_pos = true;
-  ctrl_orient = true;
-  ctrl_grip = true;
-
   launchGui();
+
+  setPosCtrl(true);
+  setOrientCtrl(true);
+  setGripCtrl(false);
+
 
   sigma7->getRotm();
 }
@@ -27,16 +32,19 @@ MainCtrl::~MainCtrl()
 void MainCtrl::setPosCtrl(bool set)
 {
   sigma7->setPosCtrl(set);
+  gui->posCtrlChangedSignal(set);
 }
 
 void MainCtrl::setOrientCtrl(bool set)
 {
   sigma7->setOrientCtrl(set);
+  gui->orientCtrlChangedSignal(set);
 }
 
 void MainCtrl::setGripCtrl(bool set)
 {
   sigma7->setGripCtrl(set);
+  gui->gripCtrlChangedSignal(set);
 }
 
 arma::vec MainCtrl::getWrench() const
@@ -51,12 +59,18 @@ arma::vec MainCtrl::getPose() const
 
 void MainCtrl::launchGui()
 {
-    gui_finished = false;
-    std::thread gui_thr = std::thread([this]()
-    {
-      gui_::launchGui([this](){ gui=new MainWindow(this); return gui; }, &gui_finished, QThread::LowestPriority);
-    });
-    gui_thr.detach();
+  gui_finished = false;
+  thr_::Semaphore gui_created_sem;
+  std::thread gui_thr = std::thread([this]()
+  {
+    gui_::launchGui([this](){
+      gui=new MainWindow(this);
+      this->gui_created_sem.notify();
+      return gui;
+    }, &gui_finished, QThread::LowestPriority);
+  });
+  gui_thr.detach();
+  gui_created_sem.wait();
 }
 
 bool MainCtrl::startRecording()
@@ -72,7 +86,7 @@ bool MainCtrl::startRecording()
   {
     Timer timer;
     double t = 0;
-    unsigned long Ts_ns = 0.002 * 1e9;
+    unsigned long Ts_ns = this->Ts * 1e9;
     while (rec_data_on)
     {
       timer.start();
@@ -146,6 +160,11 @@ void MainCtrl::startTrajReplay()
 
   std::thread([this]()
   {
+    bool is_pos_ctrl_ = sigma7->isPosCtrlOn();
+    bool is_orient_ctrl_ = sigma7->isOrientCtrlOn();
+    setPosCtrl(true);
+    setOrientCtrl(true);
+    unsigned long Ts_ns = this->Ts*1e9;
     try
     {
       sigma7->moveToPosWristJoints(Pos_data.col(0), Wrist_joint_data.col(0), true);
@@ -155,12 +174,12 @@ void MainCtrl::startTrajReplay()
         // std::cout << "i = " << i << "\n";
         if (!traj_replay_) break;
         sigma7->setPos(Pos_data.col(i));
-        sigma7->setWristJoints(Wrist_joint_data.col(i));
+        //sigma7->setWristJoints(Wrist_joint_data.col(i));
         //sigma7->waitNextCycle();
-        std::this_thread::sleep_for(std::chrono::nanoseconds(2000000));
+        std::this_thread::sleep_for(std::chrono::nanoseconds(Ts_ns));
       }
       replay_stop_sem.notify();
-      stopTrajReplay();
+      emit gui->replayTrajStoppedSignal();
     }
     catch(std::exception &e)
     {
@@ -168,6 +187,8 @@ void MainCtrl::startTrajReplay()
       emit gui->replayTrajStoppedSignal();
       gui->showErrMsgSignal(e.what());
     }
+    setPosCtrl(is_pos_ctrl_);
+    setOrientCtrl(is_orient_ctrl_);
   }).detach();
 }
 

@@ -7,6 +7,8 @@
 
         <rosparam>
 
+          Ts: 0.008
+
         </rosparam>
 
     </node>

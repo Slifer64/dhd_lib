@@ -47,6 +47,8 @@ public:
   void setPos(const arma::vec &pos);
   void setWristJoints(const arma::vec &wrist_joints);
 
+  //void setTrackParams();
+
   void moveToNullPose();
 
   void moveToPosWristJoints(const arma::vec &pos, const arma::vec &wrist_joints, bool is_blocking=true);
@@ -88,6 +90,9 @@ public:
 
   double getEndEffectorMass() const;
 
+  bool isPosCtrlOn() const { return pos_ctrl_; }
+  bool isOrientCtrlOn() const { return orient_ctrl_; }
+  bool isGrioCtrlOn() const { return grip_ctrl_; }
 
 
 private:

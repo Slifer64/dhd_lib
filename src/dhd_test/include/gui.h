@@ -49,6 +49,10 @@ signals:
   void showErrMsgSignal(const char *msg);
   void replayTrajStoppedSignal();
 
+  void posCtrlChangedSignal(bool set);
+  void orientCtrlChangedSignal(bool set);
+  void gripCtrlChangedSignal(bool set);
+
 private slots:
   void showInfoMsg(const char *msg);
   void showWarnMsg(const char *msg);
